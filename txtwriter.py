@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Script to import our csv into txt
-
+    Update: now creates two files, one for positive tweets one for negative
 @author: Michael Rodriguez
 """
 
@@ -11,14 +11,21 @@ csvf = open("training.1600000.processed.noemoticon.csv")
 dialect = csv.Sniffer().sniff(csvf.read(1024))
 txt_rdr = csv.reader(csvf,dialect)
 
-txt_wtr = open('f_training.txt','w')
+pos = open('ptweets.txt','w')
+neg = open('negtweets.txt','w')
 
 for r in txt_rdr:
     line = r[0]+" "+r[-1]
-    txt_wtr.write(line)
-    txt_wtr.write("\n")
-    print("Write line:",line)
-
-print("\nWriting complete, closing file...")
-txt_wtr.close()
-print("Conversion complete. file name: f_training.txt")
+    if r[0] == '0':
+        neg.write(line)
+        neg.write("\n")
+        print("Writing neg line: ", line)
+    else:
+        pos.write(line)
+        pos.write("\n")
+        print("Writing pos line: ",line)
+        
+print("\nWriting complete, closing files...")
+neg.close()
+pos.close()
+print("Conversion complete.")
