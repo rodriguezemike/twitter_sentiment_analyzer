@@ -13,8 +13,10 @@ txt_rdr = csv.reader(csvf,dialect)
 
 pos = open('ptweets.txt','w')
 neg = open('negtweets.txt','w')
-
+count = 1
 for r in txt_rdr:
+    print('Current line: '+ str(count))
+    count += 1
     line = r[0]+" "+r[-1]
     if r[0] == '0':
         neg.write(line)
