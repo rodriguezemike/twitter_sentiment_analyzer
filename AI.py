@@ -14,7 +14,7 @@ class NaiveBayesClassifier:
         # Compute Accuracy of classifier
         accuracy = classify.accuracy(self.nbClassifier, FeatureExtractor(tweetCollection,self.features).get_feature_set_NB())
         # Print K most informative features
-        print(self.nbClassifier.show_most_informative_features(2))
+        print(self.nbClassifier.show_most_informative_features(10))
         return accuracy*100
 
 class FeatureExtractor:
