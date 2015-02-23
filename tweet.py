@@ -14,6 +14,8 @@ class Tweet:
         self.tweet = tweet.rstrip()
         self.label = label
         self.tokens = Utils.preprocess_tweet_noStem(self.tweet)
+        self.bigrams = Utils.bigrams(self.tweet)
+        self.trigrams = Utils.trigrams(self.tweet)
 
 
     def get_label(self):
@@ -29,6 +31,12 @@ class Tweet:
     def get_tweet_tokens(self):
         return self.tokens
 
+    def get_tweet_bigrams(self):
+        return self.bigrams
+        
+    def get_tweet_trigrams(self):
+        return self.trigrams
+    
     def __str__(self):
         return "Tweet: {0}\nLabel: {1}".format(self.tweet,str(self.label))
 
