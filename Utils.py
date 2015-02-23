@@ -120,6 +120,45 @@ def generate_text_object(tokens, stopword=0):
 
 def get_frequency_distribution(text):
     return FreqDist(text)
+#Sentiment Dictionary originally based on positive and neg 
+#from http://www.cs.uic.edu/~liub/FBS/sentiment-analysis.html
+    
+def build_Sentiment_Dictionary(pos_file,neg_file):
+    
+    sent_dict = {}
+    
+    pos_f = open(pos_file)
+    neg_f = open(neg_file)
+    
+    for line in pos_f:
+        sent_dict[line.strip()] = "positive"
+    
+    for line in neg_f:
+        sent_dict[line.strip()] = "negative"
+        
+    return sent_dict
+        
+def uni_LS_Score(tweet, sent_dict):
+    lexscore = 0       
+    
+    tweet_tokens = word_tokenize(tweet)    
+    
+    for token in tweet_tokens:
+        if token in sent_dict:
+            if sent_dict[token] == "positive":
+                lexscore += 1
+            elif sent_dict[token] == "negative":
+                lexscore -= 1
+     
+    return lexscore
+
+def lex_label(s_lexscore):
+    if s_lexscore < 0:
+        return "Negative"
+    elif s_lexscore > 0:
+        return "Positive"
+    else:
+        return "Neutral"
 
 
 
