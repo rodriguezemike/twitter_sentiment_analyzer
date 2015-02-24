@@ -1,8 +1,16 @@
-from nltk import util as _util
+#nltk imports
+import nltk
+from nltk.util import ngrams
 from nltk import PorterStemmer as PorterStemmer
 from nltk import Text
 from nltk import FreqDist
 from nltk.corpus import stopwords as _stopwords
+
+#SK-learn imports
+from sklearn.feature_extraction.text import CountVectorizer
+
+#collection and other imports
+from collections import Counter
 from re import search as regexpSearch
 from string import punctuation as punctuationList
 from random import randint as randomInteger
