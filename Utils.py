@@ -29,7 +29,8 @@ def trigrams(toTokenize):
         tokens = word_tokenize(toTokenize)
         tri_grams = list (ngrams(tokens,3))
         return tri_grams
-  def uppercase_count(tweet): 
+
+def uppercase_count(tweet): 
     upCount = 0
     tweet_tokens = nltk.word_tokenize(tweet)    
     for token in tweet_tokens:
