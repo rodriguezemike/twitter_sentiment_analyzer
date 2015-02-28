@@ -7,39 +7,6 @@ import Controller
 kNegTweet = -1
 kPosTweet = 1
 
-
-class Tweet:
-    """Single Tweet Object"""
-    def __init__(self, tweet='', label=0):
-        self.tweet = tweet.rstrip()
-        self.label = label
-        self.tokens = Utils.preprocess_tweet_noStem(self.tweet)
-        self.bigrams = Utils.bigrams(self.tweet)
-        self.trigrams = Utils.trigrams(self.tweet)
-
-
-    def get_label(self):
-        return self.label
-
-    def get_tweet(self):
-        return self.tweet
-
-    def get_stemmed_tweets(self):
-        tokens = Utils.preprocess_tweet_stem(self.tweet)
-        return tokens
-
-    def get_tweet_tokens(self):
-        return self.tokens
-
-    def get_tweet_bigrams(self):
-        return self.bigrams
-        
-    def get_tweet_trigrams(self):
-        return self.trigrams
-    
-    def __str__(self):
-        return "Tweet: {0}\nLabel: {1}".format(self.tweet,str(self.label))
-
 class TweetCollection:
     """
     Collection of tweets object
@@ -47,7 +14,16 @@ class TweetCollection:
     """
     def __init__(self,tweets=[]):
         self.tweets = tweets #List of Tweet Object
-
+    #Lexicon    
+        self.lexicon = Utils.build_Sentiment_Dictionary("positive-words.txt","negative-words.txt")
+    # stopword lists         
+        self.stopwords_classic = Utils.stopwords
+        #Stopword lists generated after tweet collection is made
+        #Set with set_stopword_lists
+        self.stopwords_tfh = []
+        self.stopwords_tf1 = []
+        self.stopwords_tfid = []
+        
     def add_tweets(self,tweets):
         if len(tweets) == 0:
             print('TweetCollection: parameter tweets is empty')
@@ -55,9 +31,24 @@ class TweetCollection:
             #Add Tweets that match the labels
             self.tweets.extend(tweets)
 
-    def get_tweets(self):
-        return self.tweets
+    def set_stopword_lists(self,ngrams = 1):
+        self.stopwords_tf1=Utils.tf1_SWGenerator(self.tweets,ngrams)
+        self.stopwords_tfh=Utils.tfh_SWGenerator(self.tweets,ngrams)
+        self.stopwords_tfid=Utils.tfid_SWGenerator(self.tweets,ngrams) 
 
+    def get_tweets(self):
+        return self.tweets    
+    def get_lexicon(self):
+        return self.lexicon        
+    def get_stopwords_classic(self):
+        return self.stopwords_classic    
+    def get_stopwords_tf1(self):
+        return self.stopwords_tf1    
+    def get_topwords_tfh(self):
+        return self.stopwords_tfh
+    def get_stopwords_tfid(self):
+        return self.stopwords_tfid
+    
     def gather_tweets_stanford(self,count,filename, label=0):
         '''
         :param label: Tweet Label to gather, if label=0 gather from both labels
@@ -90,7 +81,7 @@ class TweetCollection:
             # except:
             #     print("UnexpectedError:", sys.exc_info()[0])
 
-    def generate_nltk_text(self,stopword=0):
+    def generate_nltk_text(self,stopword = 0):
         '''
         This function generate nltk.Text object from all the tweets in the collection
         :return: nltk.Text Object
@@ -98,6 +89,79 @@ class TweetCollection:
         return Utils.generate_text_object(self.tweets,stopword)
 
 
+
+class Tweet:
+    """Single Tweet Object"""
+    def __init__(self, tweet='', label=0):
+        self.tweet = tweet.rstrip()
+        self.length = len(self.tweet)
+        self.label = label
+        self.tokens = Utils.preprocess_tweet(self.tweet)
+        self.stemmed_tokens = Utils.preprocess_tweet(self.tweet,stemming = 1)
+        self.bigrams = Utils.bigrams(self.tokens)
+        self.trigrams = Utils.trigrams(self.tokens)
+        self.pos_tags = Utils.tweet_pos_tags(self.tokens)
+        self.pos_tags_count = Utils.count_pos_tags(self.pos_tags)
+        self.hastag_count = Utils.count_hashtags(self.tweet)
+        self.negation_count = Utils.count_negation(self.tweet)
+        self.uppercase_count = Utils.count_uppercase(self.tweet)
+        #Might need work.. Not sure if anonymous param can work
+        self.lexicon_score = Utils.uni_LS_Score(self.tweet,TweetCollection.get_lexicon())
+        self.lexicon_label = Utils.get_lex_label(self.lexicon_score)
+        self.features = self.generate_features(self)
+
+#Feature set support for nltk    
+    def generate_features(self):
+        featureset = {}
+        featureset["tweet"] = self.tweet
+        featureset["label"] = self.label
+        featureset["length"] = self.length
+        featureset["tokens"] = self.tokens
+        featureset["stemmed_tokens"] = self.stemmed_tokens
+        featureset["bigrams"] = self.bigrams
+        featureset["trigrams"] = self.trigrams
+        featureset["pos_tags"] = self.pos_tags
+        featureset["pos_tags_count"] = self.pos_tags_count
+        featureset["hashtag_count"] = self.hashtag_count
+        featureset["negation_count"] = self.negation_count
+        featureset["uppercase_count"] = self.uppercase_count
+        featureset["lexicon_score"] = self.lexicon_score
+        featureset["lexicon_label"] = self.lexicon_label      
+        return featureset
+        
+    def get_tweet_length(self):
+        return self.length        
+    def get_label(self):
+        return self.label
+    def get_tweet(self):
+        return self.tweet
+    def get_stemmed_tweets(self):
+        return self.stemmed_tokens
+    def get_tweet_tokens(self):
+        return self.tokens
+    def get_tweet_bigrams(self):
+        return self.bigrams        
+    def get_tweet_trigrams(self):
+        return self.trigrams    
+    def get_tweet_pos_tags(self):
+        return self.pos_tags    
+    def get_tweet_pos_tags_count(self):
+        return self.pos_tags_count    
+    def get_tweet_uppercase_count(self):
+        return self.uppercase_count 
+    def get_tweet_hashtag_count(self):
+        return self.hashtag_count
+    def get_tweet_negation_count(self):
+        return self.tweet_negation_count
+    def get_tweet_lexicon_score(self):
+        return self.lexicon_score
+    def get_tweet_lexicon_label(self):
+        return self.lexicon_label
+    def get_features(self):
+        return self.features
+        
+    def __str__(self):
+        return "Tweet: {0}\nLabel: {1}".format(self.tweet,str(self.label))
 
 def test():
     filename='training.1600000.processed.noemoticon'
