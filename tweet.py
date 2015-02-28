@@ -105,9 +105,9 @@ class Tweet:
         self.hastag_count = Utils.count_hashtags(self.tweet)
         self.negation_count = Utils.count_negation(self.tweet)
         self.uppercase_count = Utils.count_uppercase(self.tweet)
-        #Might need work.. Not sure if anonymous param can work
-        self.lexicon_score = Utils.uni_LS_Score(self.tweet,TweetCollection.get_lexicon())
-        self.lexicon_label = Utils.get_lex_label(self.lexicon_score)
+        #No sentiment is ever 99... so use as a default.
+        self.lexicon_score = 99
+        self.lexicon_label = "NO_LABEL"
         self.features = self.generate_features(self)
 
 #Feature set support for nltk    
@@ -128,6 +128,11 @@ class Tweet:
         featureset["lexicon_score"] = self.lexicon_score
         featureset["lexicon_label"] = self.lexicon_label      
         return featureset
+
+    def set_tweet_lex_score(self):
+        self.lexicon_sore = Utils.uni_LS_score(self.tokens,TweetCollection.get_lexicon())
+    def set_tweet_lex_label(self):
+        self.lexicon_label = Utils.get_lex_label(self.lexicon_score)
         
     def get_tweet_length(self):
         return self.length        
