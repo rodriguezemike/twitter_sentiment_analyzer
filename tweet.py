@@ -49,7 +49,7 @@ class TweetCollection:
     def get_stopwords_tfid(self):
         return self.stopwords_tfid
     
-    def gather_tweets_stanford(self,count,filename, label=0):
+       def gather_tweets_stanford(self,count,filename, label=0):
         '''
         :param label: Tweet Label to gather, if label=0 gather from both labels
         :param count: How many tweets
@@ -60,16 +60,18 @@ class TweetCollection:
         tweetCell = -1
         labelCell = 0
         #Other Python can't decode directly, need to specify (utf-8 breaks)
+        #csv_reader = [line.split(',') for line in csv_file][:80000]
+        
         with open(filename + '.csv',encoding='latin1') as csv_file:
             if label == kNegTweet:
                 random_index = Utils._obtain_index(count=count)
-                csv_reader = [line.split(',') for line in list(csv_file)[:800000]]
+                csv_reader = [line.split(',') for line in csv_file][:800000]
             elif label == kPosTweet:
                 random_index = Utils._obtain_index(count=count)
-                csv_reader = [line.split(',') for line in list(csv_file)[800001:]]
+                csv_reader = [line.split(',') for line in csv_file][800001:]
             else:
                 random_index = Utils._obtain_index(count=count,both=1)
-                csv_reader = [line.split(',') for line in list(csv_file)] #leave first and last 100k for test
+                csv_reader = [line.split(',') for line in csv_file] #leave first and last 100k for test
             try:
                 for i,row in enumerate(csv_reader):
                     if i in random_index:
@@ -80,6 +82,7 @@ class TweetCollection:
                 print("UnicodeDecodeError:{0}".format(err.reason))
             # except:
             #     print("UnexpectedError:", sys.exc_info()[0])
+
 
     def generate_nltk_text(self,stopword = 0):
         '''
@@ -102,13 +105,12 @@ class Tweet:
         self.trigrams = Utils.trigrams(self.tokens)
         self.pos_tags = Utils.tweet_pos_tags(self.tokens)
         self.pos_tags_count = Utils.count_pos_tags(self.pos_tags)
-        self.hastag_count = Utils.count_hashtags(self.tweet)
+        self.hashtag_count = Utils.count_hashtags(self.tweet)
         self.negation_count = Utils.count_negation(self.tweet)
         self.uppercase_count = Utils.count_uppercase(self.tweet)
-        #No sentiment is ever 99... so use as a default.
-        self.lexicon_score = 99
+        self.lexicon_score = 99 #No sentiment is ever 99 but we should try to find a default value. 0 = neutral and -1 mean neg
         self.lexicon_label = "NO_LABEL"
-        self.features = self.generate_features(self)
+        self.features = self.generate_features()
 
 #Feature set support for nltk    
     def generate_features(self):
