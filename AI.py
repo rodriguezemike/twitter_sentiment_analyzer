@@ -2,27 +2,44 @@ import nltk
 from nltk import classify
 import Utils
 
+#------------- General Classifier Class -------------#
+class classifier:
+    _predictor = None
 
+    def __init__(self,predictor):
+        self._predictor = predictor
+
+    def train(self,featureset):
+        self._predictor.train(featureset)
+
+    def predict(self,feature):
+        self._predictor.predict(feature)
+
+
+#------------- Naive Bayes Class -------------#
 class NaiveBayesClassifier:
+    training_data = None
+    nbClassifier = None
 
-    def __init__(self, tweetCollection):
-        self.test_data = tweetCollection
-        self.nbClassifier = nltk.NaiveBayesClassifier.train(FeatureExtractor(tweetCollection).get_feature_set_NB())
+    def __init__(self):
+        pass
 
-    def classifty(self,tweetCollection):
-        features = FeatureExtractor(tweetCollection).get_feature_set_NB()
-        result = []
-        for oneFeature in features:
-            result.append(self.nbClassifier.classify(oneFeature))
-        return result
+    def train(self,featureset):
+        self.nbClassifier = nltk.NaiveBayesClassifier.train(featureset)
 
-    def accuracy_test(self,tweetCollection):
-        # Compute Accuracy of classifier
-        accuracy = classify.accuracy(self.nbClassifier, FeatureExtractor(tweetCollection).get_feature_set_NB())
-        # Print K most informative features
-        print(self.nbClassifier.show_most_informative_features(10))
-        return accuracy*100
+    def predict(self,feature):
+        if self.nbClassifier != None:
+            return self.nbClassifier.classify(feature)
+        else:
+            print('ERROR: Must train classifier before making predictions')
 
+    def predictCollection(self,features):
+        if self.nbClassifier != None:
+            return self.nbClassifier.classify_many(features)
+        else:
+            print('ERROR: Must train classifier before making predictions')
+
+#------------- Feature Extractor Class -------------#
 class FeatureExtractor:
     def __init__(self,tweetCollection):
         self.tweetCollection = tweetCollection

@@ -1,9 +1,17 @@
 import AI
 
-class NaiveBayesController:
+class classifierController:
+    _classifiers = {}
 
-    def __init__(self, tweetCollection,features):
-        self.nbClassifier = AI.NaiveBayesClassifier(tweetCollection,features)
+    def __init__(self, classifierName,classifier, featureset):
+        # e.g.) classifierController(NaiveBayesClassifier(), featureset)
+        # Build featureset before passing
+        self._classifier[classifierName] = classifier
+        self._classifier[classifierName].train(featureset)
 
-    def prediction_accuracy(self,tweetCollection):
-        return self.nbClassifier.accuracy_test(tweetCollection)
+    def predict(self,classifierName,feature):
+        return self._classifier[classifierController].predict(feature)
+
+    def train(self,classifierName, featureset):
+        self._classifiers[classifierName].train(featureset)
+
