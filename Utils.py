@@ -11,6 +11,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 #collection and other imports
+import re
 from collections import Counter
 from re import search as regexpSearch
 from string import punctuation as punctuationList
