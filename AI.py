@@ -40,6 +40,21 @@ class NaiveBayesClassifier:
             print('ERROR: Must train classifier before making predictions')
 
 #------------- Feature Extractor Class -------------#
+'''
+Features - Will change but just connecting it all together.
+        featureset["length"] = self.length
+        featureset["tokens"] = frozenset(self.tokens)
+        featureset["stemmed_tokens"] = frozenset(self.stemmed_tokens)
+        featureset["bigrams"] = frozenset(self.bigrams)
+        featureset["trigrams"] = frozenset(self.trigrams)
+        featureset["pos_tags"] = frozenset(self.pos_tags)
+        featureset["pos_tags_count"] = frozenset(self.pos_tags_count)
+        featureset["hashtag_count"] = self.hashtag_count
+        featureset["negation_count"] = self.negation_count
+        featureset["uppercase_count"] = self.uppercase_count
+        featureset["lexicon_score"] = self.lexicon_score
+        featureset["lexicon_label"] = self.lexicon_label
+'''
 class FeatureExtractor:
     def __init__(self,tweetCollection):
         self.tweetCollection = tweetCollection
@@ -59,3 +74,10 @@ class FeatureExtractor:
         tweets = self.tweetCollection.get_tweets()
         toRtn = [(self.get_feature_most_common(tweet,20), tweet.get_label()) for tweet in tweets]
         return toRtn
+
+    def get_tweet_featuresets(self):
+        self.tweetCollection.set_lexicon_features()
+        for tweet in self.tweetCollection:
+            tweet.generate_features()
+        toRtn = [(tweet.get_features(),tweet.get_label()) for tweet in self.tweetCollection]
+        return toRtn    

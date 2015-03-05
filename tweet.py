@@ -14,6 +14,19 @@ class TweetCollection:
     """
     def __init__(self,tweets=[]):
         self.tweets = tweets #List of Tweet Object
+    
+    def __iter__(self):
+        return self
+    
+    def __next__(self):
+        try:
+            result = self.tweets[self.index]
+        except IndexError:
+            self.index = 0
+            raise StopIteration
+        self.index += 1
+        return result
+
     #Lexicon    
         #self.lexicon = Utils.build_Sentiment_Dictionary("positive-words.txt","negative-words.txt")
     # stopword lists         
@@ -30,7 +43,12 @@ class TweetCollection:
         else:
             #Add Tweets that match the labels
             self.tweets.extend(tweets)
-
+    
+    def set_lexicon_features(self):
+        for tweet in self.tweets:
+            tweet.lexicon_score = Utils.uni_LS_Score(tweet.get_tweet_tokens(),self.lexicon)
+            tweet.lexicon_label = Utils.get_lex_label(tweet.get_tweet_lexicon_score())
+ 
     def set_stopword_lists(self,ngrams = 1):
         self.stopwords_tf1=Utils.tf1_SWGenerator(self.tweets,ngrams)
         self.stopwords_tfh=Utils.tfh_SWGenerator(self.tweets,ngrams)
@@ -110,32 +128,34 @@ class Tweet:
         self.uppercase_count = Utils.count_uppercase(self.tweet)
         self.lexicon_score = 99 #No sentiment is ever 99 but we should try to find a default value. 0 = neutral and -1 mean neg
         self.lexicon_label = "NO_LABEL"
-        self.features = self.generate_features()
+        self.featureset = {}
 
 #Feature set support for nltk    
     def generate_features(self):
-        featureset = {}
-        featureset["tweet"] = self.tweet
-        featureset["label"] = self.label
-        featureset["length"] = self.length
-        featureset["tokens"] = self.tokens
-        featureset["stemmed_tokens"] = self.stemmed_tokens
-        featureset["bigrams"] = self.bigrams
-        featureset["trigrams"] = self.trigrams
-        featureset["pos_tags"] = self.pos_tags
-        featureset["pos_tags_count"] = self.pos_tags_count
-        featureset["hashtag_count"] = self.hashtag_count
-        featureset["negation_count"] = self.negation_count
-        featureset["uppercase_count"] = self.uppercase_count
-        featureset["lexicon_score"] = self.lexicon_score
-        featureset["lexicon_label"] = self.lexicon_label      
-        return featureset
+        self.featureset["length"] = self.length
+        self.featureset["tokens"] = frozenset(self.tokens)
+        self.featureset["stemmed_tokens"] = frozenset(self.stemmed_tokens)
+        self.featureset["bigrams"] = frozenset(self.bigrams)
+        self.featureset["trigrams"] = frozenset(self.trigrams)
+        self.featureset["pos_tags"] = frozenset(self.pos_tags)
+        self.featureset["pos_tags_count"] = frozenset(self.pos_tags_count)
+        self.featureset["hashtag_count"] = self.hashtag_count
+        self.featureset["negation_count"] = self.negation_count
+        self.featureset["uppercase_count"] = self.uppercase_count
+        self.featureset["lexicon_score"] = self.lexicon_score
+        self.featureset["lexicon_label"] = self.lexicon_label      
+    
 
-    def set_tweet_lex_score(self):
-        self.lexicon_sore = Utils.uni_LS_score(self.tokens,TweetCollection.get_lexicon())
-    def set_tweet_lex_label(self):
-        self.lexicon_label = Utils.get_lex_label(self.lexicon_score)
+    def keys(self):
+        return self.featureset.keys()
+    
+    def items(self):
+        return self.featureset.items()
         
+    def copy(self):
+        return self.featureset.copy()
+            
+      
     def get_tweet_length(self):
         return self.length        
     def get_label(self):
@@ -165,7 +185,7 @@ class Tweet:
     def get_tweet_lexicon_label(self):
         return self.lexicon_label
     def get_features(self):
-        return self.features
+        return self.featureset
         
     def __str__(self):
         return "Tweet: {0}\nLabel: {1}".format(self.tweet,str(self.label))
