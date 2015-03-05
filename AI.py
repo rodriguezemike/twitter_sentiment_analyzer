@@ -44,12 +44,12 @@ class FeatureExtractor:
     def __init__(self,tweetCollection):
         self.tweetCollection = tweetCollection
 
-    def get_feature_most_common(self, tweet, count):
+    def get_feature_most_common(self, tweet,count):
         fdist = Utils.get_frequency_distribution(self.tweetCollection.generate_nltk_text(1))
-        features = [feature[0] for feature in fdist.most_common(20)]
-        featureset ={}
+        features = [feature[0] for feature in fdist.most_common(count)]
+        featureset = dict()
         tweetTokens = tweet.get_tweet_tokens()
-        for feature in self.features:
+        for feature in features:
             featureset[feature] = 'no'
             if feature in tweetTokens:
                 featureset[feature] = 'yes'
@@ -57,7 +57,5 @@ class FeatureExtractor:
 
     def get_feature_set_NB(self):
         tweets = self.tweetCollection.get_tweets()
-        toRtn = []
-        for tweet in tweets:
-            toRtn.append((self.get_feature_NB(tweet),tweet.get_label()))
+        toRtn = [(self.get_feature_most_common(tweet,20), tweet.get_label()) for tweet in tweets]
         return toRtn

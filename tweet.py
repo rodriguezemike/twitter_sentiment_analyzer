@@ -15,7 +15,7 @@ class TweetCollection:
     def __init__(self,tweets=[]):
         self.tweets = tweets #List of Tweet Object
     #Lexicon    
-        self.lexicon = Utils.build_Sentiment_Dictionary("positive-words.txt","negative-words.txt")
+        #self.lexicon = Utils.build_Sentiment_Dictionary("positive-words.txt","negative-words.txt")
     # stopword lists         
         self.stopwords_classic = Utils.stopwords
         #Stopword lists generated after tweet collection is made
@@ -49,7 +49,7 @@ class TweetCollection:
     def get_stopwords_tfid(self):
         return self.stopwords_tfid
     
-       def gather_tweets_stanford(self,count,filename, label=0):
+    def gather_tweets_stanford(self,count,filename, label=0):
         '''
         :param label: Tweet Label to gather, if label=0 gather from both labels
         :param count: How many tweets
@@ -198,6 +198,5 @@ def print_tweetCollection(tweetCollection):
         count+=1
 
 
-test()
 
 

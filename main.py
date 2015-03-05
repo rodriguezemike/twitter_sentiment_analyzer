@@ -17,9 +17,11 @@ def davidMain():
     training_data = TweetCollection()
     training_data.gather_tweets_stanford(count=100,filename=filename)
     features = FeatureExtractor(tweetCollection=training_data).get_feature_set_NB()
-    feature = features[1]
-    nbController = classifierController('NaiveBayes',NaiveBayesClassifier(),features)
-    print(nbController.predict(feature))
+    feature = features[0][0]
+    print(feature)
+    nbClassifier = NaiveBayesClassifier()
+    nbClassifier.train(features)
+    print(nbClassifier.predict(feature))
 
 
 

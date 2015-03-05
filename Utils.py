@@ -16,6 +16,7 @@ from collections import Counter
 from re import search as regexpSearch
 from string import punctuation as punctuationList
 from random import randint as randomInteger
+import re
 
 # Utilities module:
 
