@@ -1,6 +1,8 @@
 import nltk
-from nltk import classify
 import Utils
+from sklearn.linear_model import SGDClassifier
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfTransformer as tfidfTransformer
 
 #------------- General Classifier Class -------------#
 class classifier:
@@ -14,7 +16,6 @@ class classifier:
 
     def predict(self,feature):
         self._predictor.predict(feature)
-
 
 #------------- Naive Bayes Class -------------#
 class NaiveBayesClassifier:
@@ -39,6 +40,31 @@ class NaiveBayesClassifier:
         else:
             print('ERROR: Must train classifier before making predictions')
 
+
+#------------- Logistic Regression Class -------------#
+
+class LogisticRegressionClassifier:
+    training_data = None
+    lrClassifier = None
+
+    def __init__(self):
+        pass
+
+    def train(self,featureset, labelset):
+        self.lrClassifier = SGDClassifier(loss='log').fit(featureset,labelset)
+
+    def predict(self,feature):
+        return self.lrClassifier._predict_log_proba(feature)
+
+    def predictCollection(self,features):
+        predictions = []
+        for feature in features:
+            predictions.append(self.lrClassifier._predict_proba(feature))
+        return predictions
+
+    def score(self,features,target):
+        self.lrClassifier.score(features,target)
+
 #------------- Feature Extractor Class -------------#
 '''
 Features - Will change
@@ -58,6 +84,7 @@ Features - Will change
 class FeatureExtractor:
     def __init__(self,tweetCollection):
         self.tweetCollection = tweetCollection
+        self.tweetList, self.labelList = self.constructData()
 
     def get_feature_most_common(self, tweet,count):
         fdist = Utils.get_frequency_distribution(self.tweetCollection.generate_nltk_text(1))
@@ -80,4 +107,38 @@ class FeatureExtractor:
         for tweet in self.tweetCollection:
             tweet.generate_features()
         toRtn = [(tweet.get_features(),tweet.get_label()) for tweet in self.tweetCollection]
-        return toRtn  
+        return toRtn
+
+    def get_tokenCount_featureset(self):
+        #Same featureset as above but using sklearn framework
+        count_vect = CountVectorizer()
+        transformer = tfidfTransformer()
+        X_train_counts = count_vect.fit_transform(self.tweetList)
+        return transformer.fit_transform(X_train_counts), count_vect, transformer
+
+    def constructData(self):
+        return [TweetObject.get_tweet() for TweetObject in self.tweetCollection.get_tweets()],\
+               [TweetObject.get_label() for TweetObject in self.tweetCollection.get_tweets()]
+
+    def get_labels(self):
+        return self.labelList
+
+    def get_tweets(self):
+        return self.tweetList
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

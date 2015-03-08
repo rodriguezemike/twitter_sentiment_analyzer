@@ -1,19 +1,9 @@
-from Controller import *
+from sklearn import datasets
 from AI import *
 from tweet import *
 
-def davidMain():
+def NaiveBayesTest():
     filename='training.1600000.processed.noemoticon'
-    # tweetCollection_neg = TweetCollection()
-    # tweetCollection_neg.gather_tweets_stanford(count=100,filename=filename,label=kNegTweet)
-    # tweetCollection_all = TweetCollection()
-    # tweetCollection_all.gather_tweets_stanford(count=4000,filename=filename)
-    # fdist = Utils.get_frequency_distribution(tweetCollection_all.generate_nltk_text(1))
-    # features = [feature[0] for feature in fdist.most_common(20)]
-    # nbController = Controller.NaiveBayesController(tweetCollection_all,features)
-    # print(nbController.prediction_accuracy(tweetCollection_neg))
-    # tweetCollection_neg.gather_tweets_stanford(count=800,filename=filename)
-    # print(nbController.prediction_accuracy(tweetCollection_neg))
     training_data = TweetCollection()
     training_data.gather_tweets_stanford(count=100,filename=filename)
     features = FeatureExtractor(tweetCollection=training_data).get_feature_set_NB()
@@ -23,7 +13,23 @@ def davidMain():
     nbClassifier.train(features)
     print(nbClassifier.predict(feature))
 
+def LogisticRegressionTest():
+    filename='training.1600000.processed.noemoticon'
+    training_data = TweetCollection()
+    training_data.gather_tweets_stanford(count=100,filename=filename)
+    featureController = FeatureExtractor(tweetCollection=training_data)
+    features, count_vect, transformer = featureController.get_tokenCount_featureset()
+    lrClassifier = LogisticRegressionClassifier()
+    lrClassifier.train(features,featureController.get_labels())
 
+    sampleTweet = featureController.get_tweets()[11]
+    X_train_count = count_vect.transform([sampleTweet])
+    testTweet = transformer.transform(X_train_count)
+
+    print(lrClassifier.score(testTweet,["0"]))
+    # predicted = lrClassifier.predict(testTweet)
+    # for doc, category in zip([sampleTweet], predicted):
+    #     print('%r => %s' % (doc, featureController.get_labels()[category]))
 
 def print_tweetCollection(tweetCollection):
     count = 1
@@ -38,4 +44,4 @@ def print_tweetCollection(tweetCollection):
         count+=1
 
 
-davidMain()
+LogisticRegressionTest()
