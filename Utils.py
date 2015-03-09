@@ -9,6 +9,8 @@ from nltk.corpus import stopwords as _stopwords
 #SK-learn imports
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.utils import shuffle
+from sklearn.cross_validation import train_test_split
 
 #collection and other imports
 import re
@@ -24,6 +26,13 @@ import re
 stopwords = _stopwords.words('english')
 stopwords.extend(["i'm","it's",'im','its']) #these tokens are common to both positive and negative
 negation_words = ["no","not","none","nobody", "nothing", "neither" , "nowhere", "never"] #Extension needed
+
+# Split data into Training and Test Set
+def split_data(features, labels):
+    shuffledFeatures, shuffledLabels = shuffle(features, labels)
+    return train_test_split(shuffledFeatures,shuffledLabels, test_size=.3)
+
+
 
 #May leave hanging null token. May need work.
 def word_tokenize(toTokenize):

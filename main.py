@@ -1,6 +1,35 @@
 from sklearn import datasets
 from AI import *
 from tweet import *
+from ValidationController import *
+from sklearn import metrics
+import numpy as np
+
+def validationTest():
+    #Construct Features
+    filename='training.1600000.processed.noemoticon'
+    training_data = TweetCollection()
+    training_data.gather_tweets_stanford(count=500,filename=filename)
+
+    featureController = FeatureExtractor(tweetCollection=training_data)
+
+    training_set, count_vect, transformer = featureController.get_tokenCount_featureset()
+    target_set = featureController.get_labels()
+    train_data, test_data, train_target, test_target = featureController.splitData(training_set, target_set)
+
+    #Construct Classifiers
+    classifierName = []
+    classifierName.append('LogisticRegress')
+
+    classifiers = []
+    classifiers.append(LogisticRegressionClassifier())
+
+    #Do validation Test
+    lrClassifier = LogisticRegressionClassifier()
+    lrClassifier.train(train_data, train_target)
+
+    predicted = lrClassifier.predictCollection(test_data)
+    print(metrics.classification_report(test_target.tolist(),predicted))
 
 def NaiveBayesTest():
     filename='training.1600000.processed.noemoticon'
@@ -43,5 +72,4 @@ def print_tweetCollection(tweetCollection):
         print(str(count) + str(i.get_tweet_tokens()))
         count+=1
 
-
-LogisticRegressionTest()
+validationTest()

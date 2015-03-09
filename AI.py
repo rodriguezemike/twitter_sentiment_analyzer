@@ -51,15 +51,15 @@ class LogisticRegressionClassifier:
         pass
 
     def train(self,featureset, labelset):
-        self.lrClassifier = SGDClassifier(loss='log').fit(featureset,labelset)
+        self.lrClassifier = SGDClassifier(loss='log',shuffle=True).fit(featureset,labelset)
 
     def predict(self,feature):
-        return self.lrClassifier._predict_log_proba(feature)
+        return self.lrClassifier.predict(feature)
 
     def predictCollection(self,features):
         predictions = []
         for feature in features:
-            predictions.append(self.lrClassifier._predict_proba(feature))
+            predictions.append(self.lrClassifier.predict(feature)[0])
         return predictions
 
     def score(self,features,target):
@@ -101,7 +101,7 @@ class FeatureExtractor:
         tweets = self.tweetCollection.get_tweets()
         toRtn = [(self.get_feature_most_common(tweet,20), tweet.get_label()) for tweet in tweets]
         return toRtn
-    
+
     def get_tweet_featuresets(self):
         #self.tweetCollection.set_lexicon_features()
         for tweet in self.tweetCollection:
@@ -126,19 +126,5 @@ class FeatureExtractor:
     def get_tweets(self):
         return self.tweetList
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    def splitData(self,training_data,target_data):
+        return Utils.split_data(training_data,target_data)
