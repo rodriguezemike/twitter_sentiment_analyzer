@@ -1,21 +1,10 @@
 import nltk
 import Utils
 from sklearn.linear_model import SGDClassifier
+from sklearn.naive_bayes import MultinomialNB
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer as tfidfTransformer
-
-#------------- General Classifier Class -------------#
-class classifier:
-    _predictor = None
-
-    def __init__(self,predictor):
-        self._predictor = predictor
-
-    def train(self,featureset):
-        self._predictor.train(featureset)
-
-    def predict(self,feature):
-        self._predictor.predict(feature)
+from sklearn.metrics import accuracy_score as meanScore
 
 #------------- Naive Bayes Class -------------#
 class NaiveBayesClassifier:
@@ -25,20 +14,23 @@ class NaiveBayesClassifier:
     def __init__(self):
         pass
 
-    def train(self,featureset):
-        self.nbClassifier = nltk.NaiveBayesClassifier.train(featureset)
+    def train(self,test_data,labelSet):
+        self.nbClassifier = MultinomialNB().fit(test_data,labelSet)
 
-    def predict(self,feature):
+    def predict(self,test_datum):
         if self.nbClassifier != None:
-            return self.nbClassifier.classify(feature)
+            return self.nbClassifier.predict(test_datum)
         else:
             print('ERROR: Must train classifier before making predictions')
 
-    def predictCollection(self,features):
+    def predictCollection(self,test_data):
         if self.nbClassifier != None:
-            return self.nbClassifier.classify_many(features)
+            return [self.nbClassifier.predict(tweet) for tweet in test_data]
         else:
             print('ERROR: Must train classifier before making predictions')
+
+    def score(self,test_data,labelSet):
+        return self.nbClassifier.score(test_data,labelSet)
 
 
 #------------- Logistic Regression Class -------------#
@@ -62,8 +54,8 @@ class LogisticRegressionClassifier:
             predictions.append(self.lrClassifier.predict(feature)[0])
         return predictions
 
-    def score(self,features,target):
-        self.lrClassifier.score(features,target)
+    def score(self,test_data,labelSet):
+        return self.lrClassifier.score(test_data,labelSet)
 
 #------------- Feature Extractor Class -------------#
 '''
@@ -82,10 +74,25 @@ Features - Will change
         featureset["lexicon_label"] = self.lexicon_label
 '''
 class FeatureExtractor:
-    def __init__(self,tweetCollection):
-        self.tweetCollection = tweetCollection
-        self.tweetList, self.labelList = self.constructData()
+    def __init__(self):
+        pass
 
+    def get_tokenCount_featureset(self,tweetCollection, test_data=None):
+        #Same featureset as above but using sklearn framework
+        count_vect = CountVectorizer()
+        if test_data != None:
+            countVectorizer = count_vect.fit(tweetCollection.get_tweets()[1:100]+test_data.get_tweets()[1:100])
+        else:
+            countVectorizer = count_vect.fit(tweetCollection.get_tweets())
+        if test_data != None:
+            return countVectorizer.transform(tweetCollection.get_tweets()), tweetCollection.get_labels(), countVectorizer.transform(test_data.get_tweets()), test_data.get_labels()
+        else:
+            return countVectorizer.transform(tweetCollection.get_tweets()), tweetCollection.get_labels()
+
+
+    ##############################
+    # ---- BEGIN DEPRECATED ---- #
+    ##############################
     def get_feature_most_common(self, tweet,count):
         fdist = Utils.get_frequency_distribution(self.tweetCollection.generate_nltk_text(1))
         features = [feature[0] for feature in fdist.most_common(count)]
@@ -108,23 +115,6 @@ class FeatureExtractor:
             tweet.generate_features()
         toRtn = [(tweet.get_features(),tweet.get_label()) for tweet in self.tweetCollection]
         return toRtn
-
-    def get_tokenCount_featureset(self):
-        #Same featureset as above but using sklearn framework
-        count_vect = CountVectorizer()
-        transformer = tfidfTransformer()
-        X_train_counts = count_vect.fit_transform(self.tweetList)
-        return transformer.fit_transform(X_train_counts), count_vect, transformer
-
-    def constructData(self):
-        return [TweetObject.get_tweet() for TweetObject in self.tweetCollection.get_tweets()],\
-               [TweetObject.get_label() for TweetObject in self.tweetCollection.get_tweets()]
-
-    def get_labels(self):
-        return self.labelList
-
-    def get_tweets(self):
-        return self.tweetList
-
-    def splitData(self,training_data,target_data):
-        return Utils.split_data(training_data,target_data)
+    ##############################
+    # ----- END DEPRECATED ----- #
+    ##############################

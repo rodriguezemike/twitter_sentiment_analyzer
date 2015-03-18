@@ -54,9 +54,11 @@ class TweetCollection:
         self.stopwords_tfid=Utils.tfid_SWGenerator(self.tweets,ngrams) 
 
     def get_tweets(self):
-        return self.tweets    
+        return [tweet.get_tweet() for tweet in self.tweets]
+    def get_labels(self):
+        return [tweet.get_label() for tweet in self.tweets]
     def get_lexicon(self):
-        return self.lexicon        
+        return self.lexicon
     def get_stopwords_classic(self):
         return self.stopwords_classic    
     def get_stopwords_tf1(self):

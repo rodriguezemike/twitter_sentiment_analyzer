@@ -13,11 +13,12 @@ class ValidationController:
         else:
             print("ERROR: Classifiers List cannot be empty")
 
+
     def score(self, test_data, labelSet):
         if self.has_trained == True:
-            toRtn = []
+            toRtn = {}
             for key in self._classifiers:
-                toRtn.append(self._classifiers[key].score(test_data,labelSet))
+                toRtn[key] = self._classifiers[key].score(test_data,labelSet)
         else:
             print("ERROR: Classifiers must be trained first!")
         return toRtn
@@ -29,3 +30,6 @@ class ValidationController:
                 self._classifiers[key].train(training_data,labelSet)
         else:
             print("ERROR: No Classifiers available")
+
+    def getClassifier(self,name):
+        return self._classifiers[name]
